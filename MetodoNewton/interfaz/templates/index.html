@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Raíces Numéricas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Roboto', sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 0;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            padding: 40px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin: 0;
+            font-size: 2.2em;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            margin-top: 8px;
+            font-size: 1.05em;
+            font-weight: 400;
+        }
+
+        .historial-button-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .historial-button {
+            display: inline-block;
+            padding: 12px 20px;
+            background: #1e40af;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: all 0.2s ease;
+        }
+
+        .historial-button:hover {
+            background: #1e3a8a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+        }
+
+        .historial-button:active {
+            transform: translateY(0);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+            border: 1px solid #e5e7eb;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.06);
+        }
+
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            padding: 11px 14px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.95em;
+            transition: all 0.2s;
+            background: #ffffff;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            padding: 13px 28px;
+            border-radius: 6px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 12px;
+            letter-spacing: 0.3px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.2);
+        }
+
+        .result-box .label {
+            font-size: 0.75em;
+            opacity: 0.95;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .result-box .value {
+            font-size: 1.5em;
+            font-weight: 700;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 16px;
+        }
+
+        th {
+            background: #f9fafb;
+            color: #374151;
+            padding: 14px 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.9em;
+            font-family: 'Monaco', 'Courier New', monospace;
+            color: #4b5563;
+        }
+
+        tbody tr {
+            transition: background-color 0.15s;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        tbody tr:last-child td {
+            font-weight: 600;
+            color: #059669;
+            background: #f0fdf4;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        h2 {
+            color: #1e293b;
+            margin-bottom: 18px;
+            font-size: 1.3em;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .info-text {
+            color: #6b7280;
+            font-size: 0.875em;
+            margin-top: 16px;
+            padding: 12px 14px;
+            background: #f9fafb;
+            border-radius: 6px;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #dbeafe;
+            color: #1e40af;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: #f9fafb;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.75em;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 1.4em;
+            color: #1e293b;
+            font-weight: 700;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-top: 16px;
+            border-left: 3px solid #ef4444;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Calculadora de Raíces Numéricas</h1>
+        <div class="subtitle">Método de Newton-Raphson</div>
+    </div>
+    
+    <div class="historial-button-container">
+        <a href="/historial" class="historial-button">
+             Ver Historial
+        </a>
+    </div>
+
+    <div class="container">
+        <div class="main-grid">
+            <div class="card input-section">
+                <h2>Configuración <span class="badge">Parámetros</span></h2>
+                
+                <form id="newtonForm">
+                    <div class="input-group">
+                        <label for="funcion">Función matemática:</label>
+                        <input type="text" id="funcion" name="funcion" placeholder="x**2 - 4" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="valorInicial">Valor inicial:</label>
+                        <input type="number" id="valorInicial" name="valorInicial" placeholder="2" step="0.01" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="tolerancia">Tolerancia:</label>
+                        <input type="number" id="tolerancia" name="tolerancia" placeholder="0.0001" step="0.00001" required>
+                    </div>
+
+                    <button type="submit">Calcular Raíz</button>
+                </form>
+
+                <div class="error-message" id="error"></div>
+
+                <div id="resultado"></div>
+                
+                <div id="estadisticas"></div>
+
+                <div class="info-text">
+                    <strong>💡 Notación:</strong> Use sintaxis Python (x**2 para x², x**0.5 para √x, etc.)
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Tabla de Iteraciones</h2>
+                <div style="max-height: 500px; overflow-y: auto;">
+                    <table class="result-table" id="iteracionesTable">
+                        <thead>
+                            <tr>
+                                <th>Iteración</th>
+                                <th>Valor x</th>
+                                <th>f(x)</th>
+                                <th>Error</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="card">
+                <h2>Convergencia de las Aproximaciones</h2>
+                <div class="chart-container">
+                    <canvas id="chartConvergencia"></canvas>
+                </div>
+            </div>
+
+            <div class="card" id="chartCard">
+                <h2>Gráfica de la Función</h2>
+                <div id="chartContainer" class="chart-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chartConvergencia = null;
+
+        document.getElementById('newtonForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const funcion = document.getElementById('funcion').value;
+            const tolerancia = parseFloat(document.getElementById('tolerancia').value);
+            const valorInicial = parseFloat(document.getElementById('valorInicial').value);
+            
+            const errorDiv = document.getElementById('error');
+            errorDiv.classList.remove('show');
+            
+            try {
+                const response = await fetch('/Calcular', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        funcion,
+                        tolerancia,
+                        valorInicial
+                    })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Error en el servidor');
+                }
+                
+                const data = await response.json();
+                
+                // Mostrar raíz si se encontró
+                if (typeof data.raiz === 'number') {
+                    mostrarResultado(data.raiz);
+                } else {
+                    mostrarResultado1(data.raiz);
+                }
+                
+                // Mostrar estadísticas
+                mostrarEstadisticas(data.iteraciones);
+                
+                // Mostrar iteraciones
+                mostrarTabla(data.iteraciones);
+                
+                // Mostrar gráfica de convergencia
+                mostrarGraficaConvergencia(data.iteraciones, data.raiz);
+                
+                // Mostrar gráfica de la función (imagen desde el servidor)
+                const chartContainer = document.getElementById('chartContainer');
+                chartContainer.innerHTML = `<img src="data:image/png;base64,${data.img}" alt="Gráfica del método" style="max-width: 100%; border-radius: 8px;">`;
+                
+            } catch (error) {
+                errorDiv.textContent = `Error NO existe la raiz: ${error.message}`;
+                errorDiv.classList.add('show');
+            }
+        });
+
+        function mostrarResultado(raiz) {
+            document.getElementById('resultado').innerHTML = `
+                <div class="result-box">
+                    <div class="label">Raíz Encontrada</div>
+                    <div class="value">${raiz.toFixed(8)}</div>
+                </div>
+            `;
+        }
+
+        function mostrarResultado1(raiz) {
+            document.getElementById('resultado').innerHTML = `
+                <div class="result-box">
+                    <div class="label">Raíz No Encontrada</div>
+                    <div class="value">${raiz}</div>
+                </div>
+            `;
+        }
+
+        function mostrarEstadisticas(iteraciones) {
+            const numIteraciones = iteraciones.length;
+            const errorFinal = iteraciones[iteraciones.length - 1].error;
+            
+            document.getElementById('estadisticas').innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Iteraciones</div>
+                        <div class="stat-value">${numIteraciones}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Error Final</div>
+                        <div class="stat-value">${errorFinal.toExponential(2)}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Convergencia</div>
+                        <div class="stat-value">${numIteraciones < 10 ? 'Rápida' : 'Normal'}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function mostrarTabla(iteraciones) {
+            const tbody = document.querySelector('#iteracionesTable tbody');
+            tbody.innerHTML = '';
+            
+            iteraciones.forEach((iter, index) => {
+                const row = `
+                    <tr>
+                        <td>${index}</td>
+                        <td>${iter.x.toFixed(8)}</td>
+                        <td>${iter.fx.toFixed(8)}</td>
+                        <td>${iter.error.toFixed(8)}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function mostrarGraficaConvergencia(iteraciones, raiz) {
+            if (chartConvergencia) chartConvergencia.destroy();
+            
+            const ctxConv = document.getElementById('chartConvergencia').getContext('2d');
+            chartConvergencia = new Chart(ctxConv, {
+                type: 'line',
+                data: {
+                    labels: iteraciones.map((_, index) => index),
+                    datasets: [{
+                        label: 'Valor de x',
+                        data: iteraciones.map(i => i.x),
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        borderWidth: 2
+                    }, {
+                        label: 'Raíz Exacta',
+                        data: iteraciones.map(() => typeof raiz === 'number' ? raiz : 0),
+                        borderColor: '#10b981',
+                        borderDash: [8, 4],
+                        pointRadius: 0,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Valor de x'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Iteración'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

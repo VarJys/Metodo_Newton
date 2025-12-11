@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Ejecuciones</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f4f4f4; }
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        img { border-radius: 10px; margin-top: 10px; }
+        a {
+            display: inline-block;
+            padding: 8px 14px;
+            background: #2563eb;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="/">← Volver</a>
+    <h2>Historial de Ejecuciones</h2>
+
+    {% for item in historial %}
+        <div class="card">
+            <p><b>Fecha:</b> {{ item.fecha }}</p>
+            <p><b>Función:</b> {{ item.funcion }}</p>
+            <p><b>Xi inicial:</b> {{ item.xi }}</p>
+            <p><b>Tolerancia:</b> {{ item.tolerancia }}</p>
+            <p><b>Resultado:</b> {{ item.resultado }}</p>
+
+            {% if item.grafica_base64 %}
+                        <div class="grafica-container">
+                            <img src="data:image/png;base64,{{ item.grafica_base64 }}" 
+                                 alt="Gráfica de convergencia"
+                                 onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=color:#dc2626>⚠️ Imagen no disponible</p>'">
+                        </div>
+                    {% endif %}
+        </div>
+    {% endfor %}
+
+</body>
+</html>
